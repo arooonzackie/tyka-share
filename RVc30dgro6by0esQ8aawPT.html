@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Decisions</title>
+</head>
+<body>
+<style>
+  :root{--ink:#14161c;--muted:#5b6172;--line:#dfe2ea;--bg:#fbfbfd;--card:#fff;--accent:#0c6f43;--accent-weak:#e8f5ee}
+  @media (prefers-color-scheme:dark){:root{--ink:#e9eaf3;--muted:#a9aec4;--line:#262a35;--bg:#0c0e12;--card:#12151c;--accent:#3ecf8e;--accent-weak:#122a20}}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:52rem;margin:0 auto;padding:2.5rem 1.25rem 5rem}
+  h1{font-size:1.9rem;line-height:1.2;margin:0 0 .35rem;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0 0 2.5rem;font-size:.95rem}
+  h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:2.75rem 0 .9rem;font-weight:700}
+  .d{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.25rem;margin:0 0 .85rem}
+  .d h3{margin:0 0 .4rem;font-size:1.02rem;line-height:1.35}
+  .d p{margin:.35rem 0 0;font-size:.94rem}
+  .d .why{color:var(--muted)}
+  .tag{display:inline-block;font:600 11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--accent);background:var(--accent-weak);border-radius:999px;padding:1px 9px;margin-bottom:.5rem}
+  .note{border-left:3px solid var(--accent);padding:.15rem 0 .15rem 1rem;color:var(--muted);font-size:.94rem;margin:0 0 1.5rem}
+  footer{margin-top:3.5rem;padding-top:1.25rem;border-top:1px solid var(--line);color:var(--muted);font-size:.86rem}
+</style>
+
+<div class="wrap">
+
+<h1>Decisions, storyboards and mockups</h1>
+<p class="sub">The reference page behind the composer icon. Settled calls land here as they are made, newest section last. Nothing is edited in place.</p>
+
+<p class="note">Why this page exists: decisions were living in chat, in task records and on a review page, and none of those is somewhere you can look things up later. This is the one place that outlives the conversation.</p>
+
+<h2>Settled decisions</h2>
+
+<div class="d">
+  <span class="tag">gates</span>
+  <h3>Ship gates stay per task. Batching them across a session is not taken.</h3>
+  <p class="why">About ten minutes saved against a task of well over an hour, paid for with a hunt across four tasks when something breaks. The numbers came from familiar code and would not survive unfamiliar code.</p>
+</div>
+
+<div class="d">
+  <span class="tag">reporting</span>
+  <h3>The mechanical parts of a report are generated. The judgement parts are written by hand.</h3>
+  <p class="why">Gate results and timings are measurements the machine already holds, and transcribing them loses evidence. Deviations and open worries are where the run gets re-examined, so those stay conscious work.</p>
+</div>
+
+<div class="d">
+  <span class="tag">testing</span>
+  <h3>When a test has to reach around the thing it means to prove, that detour is itself a finding.</h3>
+  <p class="why">Several defects escaped because tests supplied the very thing they were meant to check. The detour is recorded rather than quietly worked around, and a suite that keeps needing them means the seam is wrong.</p>
+</div>
+
+<div class="d">
+  <span class="tag">build</span>
+  <h3>The build stamper keeps importing its hashing helpers from the daemon, awkward layering and all.</h3>
+  <p class="why">One implementation beats two. Drift between the stamper and the checker would be a correctness bug, while the layering is only ugly, and there is no clean alternative because the check runs before the built output can be trusted.</p>
+</div>
+
+<div class="d">
+  <span class="tag">operations</span>
+  <h3>The persistence warning is silenced by a durable marker in the repo, never by an environment setting.</h3>
+  <p class="why">An escape hatch living in the same place as the thing it excuses is circular: satisfying it means repeating the act the warning says will not survive. The marker must also carry a line saying what was done, so a false one is a statement someone typed.</p>
+</div>
+
+<div class="d">
+  <span class="tag">gates</span>
+  <h3>The repository gate latches its first refusal. A tree that recovers mid-run stays refused.</h3>
+  <p class="why">A gate that can flip back to fine is a sample, not a gate. A run that dirties the tree early and cleans it late would otherwise report itself clean, which is the exact case the gate exists to catch.</p>
+</div>
+
+<h2>Design calls on the screens themselves</h2>
+
+<div class="d">
+  <span class="tag">theme</span>
+  <h3>The account avatar takes the theme accent, in both places it appears.</h3>
+  <p class="why">It was a hard-coded magenta that no other surface used. The desktop rail and the phone drawer carried byte-identical copies, and changing only one would have left the phone unchanged, which was the surface the screenshot came from.</p>
+</div>
+
+<div class="d">
+  <span class="tag">composer</span>
+  <h3>Under the composer sits one small icon, not a card.</h3>
+  <p class="why">The inline card was tried first and rejected on sight for taking the whole area. An icon opens this page in its own tab when it is wanted and costs nothing when it is not.</p>
+</div>
+
+<div class="d">
+  <span class="tag">composer</span>
+  <h3>The icon opens a real browser tab, and refuses to open a broken one.</h3>
+  <p class="why">Every request needs the companion's credential and a new tab cannot carry it in a header, so the link is resolved first. If the credential will not resolve the icon stays visible but disabled, because a vanishing control cannot be explained and a failing tab is worse than no tab.</p>
+</div>
+
+<h2>Storyboards and mockups</h2>
+
+<p class="note">Nothing here in picture form yet. Mockups added from here on are appended to this section with the date and the task they belong to.</p>
+
+<footer>Appended to as decisions are made. Served by the companion daemon from its own artifacts store.</footer>
+
+</div>
+
+<section class="pinned"><h3>Pinned � smoke</h3><p>route smoke check</p></section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 9/7/2026, 12:09:44 PM</h3>
+<p>**Goal card #1093 — ready for your ✓**, and the read found something that changes the ask slightly.<br /><br />- **The two Pins already do different things.** On your phone, Pin does not create a to-do at all — it sends me a chat message saying add this to my to-do list. Only the desktop hover row actually files one. So the surfaces already disagree.<br />- **My call, and say if you disagree.** Point both at the page. A control named Pin that appends on desktop and messages me on the phone would be the same split the rename is meant to end.<br />- **It touches the daemon.** There is no append route today, only create and read, so one gets added in the one place that will not shadow the existing paths.<br />- **The safety bit.** A pinned message is escaped before it becomes part of the page, on the front end, one hop before it is sent. A message containing a code block or angle brackets cannot close the page&#39;s tags or inject anything.<br />- **Good news on the rename.** Nothing asserts the old label, so no test breaks and none can be weakened to pass.</p>
+</section>
+
+<section class="pinned">
+<h3>Pinned · 07/09/2026, 21:37:35</h3>
+<p>Goal for #1100 is ready — approve to start, or say what to change.</p>
+</section>
+</body>
+</html>
