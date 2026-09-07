@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Harness</title>
+</head>
+<body>
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --card: #ffffff;
+    --ink: #1a1815;
+    --muted: #6b6559;
+    --line: #e6e1d7;
+    --rule: #cfc8ba;
+    --hold: #2f6b3f;
+    --hold-weak: #e8f1e9;
+    --cost: #a8621a;
+    --cost-weak: #fbf0e2;
+    --stop: #9b2c2c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --bg: #100f0d;
+      --card: #171613;
+      --ink: #ece8e0;
+      --muted: #9a9284;
+      --line: #2a2721;
+      --rule: #3a352c;
+      --hold: #5fbf80;
+      --hold-weak: #14251a;
+      --cost: #e0a45c;
+      --cost-weak: #241b10;
+      --stop: #e06c6c;
+    }
+  }
+  :root[data-theme='dark'] {
+    --bg: #100f0d;
+    --card: #171613;
+    --ink: #ece8e0;
+    --muted: #9a9284;
+    --line: #2a2721;
+    --rule: #3a352c;
+    --hold: #5fbf80;
+    --hold-weak: #14251a;
+    --cost: #e0a45c;
+    --cost-weak: #241b10;
+    --stop: #e06c6c;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 16.5px/1.62 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 47rem; margin: 0 auto; padding: 3.25rem 1.25rem 6rem; }
+
+  .eyebrow {
+    font: 600 11px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--cost);
+    margin: 0 0 .9rem;
+  }
+  h1 {
+    font: 700 clamp(2.1rem, 7vw, 3.1rem)/1.05 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    letter-spacing: -.02em;
+    margin: 0 0 .7rem;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: clamp(1.02rem, 2.6vw, 1.12rem);
+    color: var(--muted);
+    margin: 0 0 2.2rem;
+    max-width: 36rem;
+  }
+
+  .ledger {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+  }
+  .ledger div { background: var(--card); padding: .85rem 1rem; }
+  .ledger .n {
+    display: block;
+    font: 600 1.35rem/1.1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: .2rem;
+  }
+  .ledger .l {
+    font: 400 11.5px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  h2 {
+    font: 700 clamp(1.3rem, 3.6vw, 1.6rem)/1.2 'Bricolage Grotesque', ui-sans-serif, sans-serif;
+    letter-spacing: -.01em;
+    margin: 3rem 0 .5rem;
+    padding-bottom: .6rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  h2 + p { color: var(--muted); margin: .9rem 0 1.6rem; font-size: 15.5px; }
+
+  /* ── the spine. Each row is a door; the left column is what it REFUSES,
+       because that is what a gate is. ─────────────────────────────────── */
+  .gate {
+    display: grid;
+    grid-template-columns: 2.1rem 1fr;
+    gap: 0 .9rem;
+    padding: 1.15rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .gate:last-of-type { border-bottom: 0; }
+  .gate .num {
+    font: 600 12px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .gate h3 {
+    font: 600 1.02rem/1.35 ui-sans-serif, system-ui, sans-serif;
+    margin: 0 0 .3rem;
+  }
+  .gate .refuses {
+    font-size: 15px;
+    color: var(--muted);
+    margin: 0 0 .45rem;
+  }
+  .gate .refuses b { color: var(--ink); font-weight: 600; }
+  .cost {
+    display: inline-block;
+    font: 600 11px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
+    padding: 0 8px;
+    border-radius: 3px;
+    color: var(--hold);
+    background: var(--hold-weak);
+  }
+  .cost.slow { color: var(--cost); background: var(--cost-weak); }
+  .cost.you { color: var(--stop); background: transparent; border: 1px solid currentColor; }
+
+  .new { border-left: 3px solid var(--cost); padding-left: 1rem; }
+
+  .callout {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.15rem 1.25rem;
+    margin: 1.6rem 0 0;
+  }
+  .callout h3 {
+    font: 600 1rem/1.35 ui-sans-serif, system-ui, sans-serif;
+    margin: 0 0 .4rem;
+  }
+  .callout p { margin: 0; color: var(--muted); font-size: 15.5px; }
+
+  ul { padding-left: 1.15rem; margin: 1rem 0 0; }
+  li { margin-bottom: .65rem; color: var(--muted); font-size: 15.5px; }
+  li b { color: var(--ink); font-weight: 600; }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    font-size: 14px;
+    color: var(--muted);
+  }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">State of the harness &middot; 7 September 2026</p>
+  <h1>Nine doors, and what each one refuses</h1>
+  <p class="standfirst">
+    The machinery that takes a sentence typed into a chat box and turns it into code somebody can
+    prove. Every box below can say no. The interesting number is not how long it takes &mdash; it is
+    which step is actually expensive.
+  </p>
+
+  <div class="ledger">
+    <div><span class="n">&lt; 1 min</span><span class="l">Every code gate</span></div>
+    <div><span class="n">45&ndash;59%</span><span class="l">Spent waiting on a human</span></div>
+    <div><span class="n">5,304</span><span class="l">Tests in the suite</span></div>
+    <div><span class="n">3 of 5</span><span class="l">Escapes now caught</span></div>
+  </div>
+
+  <h2>The spine</h2>
+  <p>
+    A request walks these in order. It can stop at any of them, and stopping is the feature: the
+    ones that cost nothing are the ones that refuse early.
+  </p>
+
+  <div class="gate">
+    <div class="num">01</div>
+    <div>
+      <h3>Intake</h3>
+      <p class="refuses">Refuses <b>nothing</b>. It only records, so that no work can happen that the board never saw.</p>
+      <span class="cost">instant</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">02</div>
+    <div>
+      <h3>Claim &mdash; the fork</h3>
+      <p class="refuses">Refuses an <b>unknown lane or profile</b>, and refuses to let a feature claim less ceremony than a feature needs. A question is answered here and the row closes; everything else walks on.</p>
+      <span class="cost">instant</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">03</div>
+    <div>
+      <h3>Align &mdash; the reading</h3>
+      <p class="refuses">Refuses a card <b>over 1,500 characters</b>, so the restatement of your request cannot quietly become a document. Then it waits for you.</p>
+      <span class="cost you">yours: 15s &ndash; 2 min</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">04</div>
+    <div>
+      <h3>Goal format</h3>
+      <p class="refuses">Refuses a goal <b>missing any of its five sections</b>, and refuses one whose success criteria name nothing runnable. Prose alone bounces back carrying the complaint.</p>
+      <span class="cost">instant</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">05</div>
+    <div>
+      <h3>Your approval</h3>
+      <p class="refuses">Refuses to proceed at all. <b>The single most expensive step in the flow</b>, and it is not the flow: 8 minutes 40 on one approval, against every code gate answering in under a minute.</p>
+      <span class="cost you">yours: up to 9 min</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">06</div>
+    <div>
+      <h3>Checklist shape, then profile floor</h3>
+      <p class="refuses">Refuses an item that does not say <b>where it may write, what command proves it, and what a pass means</b>. Then refuses the whole list if a full task carries no invariant test and no end-to-end test.</p>
+      <span class="cost">under 5s</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">07</div>
+    <div>
+      <h3>Dispatch</h3>
+      <p class="refuses">Refuses a fan-out whose <b>file sets are not provably disjoint</b>. Fresh seats every round, never one long-lived one carrying yesterday's assumptions.</p>
+      <span class="cost slow">3&ndash;12 min</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">08</div>
+    <div>
+      <h3>Verify</h3>
+      <p class="refuses">Refuses the word of the thing that wrote the code. <b>Done is what a command proved</b>, and the code runs the command. Green, a bounded retry carrying the failure back, or that one item escalates alone.</p>
+      <span class="cost slow">1&ndash;7 min</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">09</div>
+    <div>
+      <h3>Exit</h3>
+      <p class="refuses">Refuses a repository <b>worse than it started</b>, and latches: a tree that breaks early and recovers late still counts as broken, because a gate that can flip back to fine is a sample rather than a gate.</p>
+      <span class="cost">under 1 min</span>
+    </div>
+  </div>
+
+  <h2>Gates that did not exist this morning</h2>
+  <p>Both came out of the same finding: code that passed every test and could not run. It happened five times in one night.</p>
+
+  <div class="new">
+    <div class="gate">
+      <div class="num">&#9679;</div>
+      <div>
+        <h3>Reachability</h3>
+        <p class="refuses">Walks out from the <b>running entry points only</b> and fails the build when a module or a route exists that nothing in the product can reach. An import from a test file counts for nothing &mdash; that is precisely how the escapes stayed green.</p>
+        <span class="cost">1.2s &middot; caught a dead subsystem on its first run</span>
+      </div>
+    </div>
+
+    <div class="gate">
+      <div class="num">&#9679;</div>
+      <div>
+        <h3>The boarding gate, rebuilt</h3>
+        <p class="refuses">It used to ask whether anything was on the board. It now asks <b>what is being written</b>. Those are different questions, and the old one could not tell &ldquo;this is a question&rdquo; from &ldquo;someone is writing untracked code&rdquo;.</p>
+        <span class="cost">instant &middot; the old workaround now buys nothing</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>The loop around it</h2>
+  <p>
+    Every finished run is written up and sent to a reviewer with no access to how it was produced
+    &mdash; only the diff, the results, and what was claimed. Ten entries so far.
+  </p>
+  <ul>
+    <li><b>A send gate</b> refuses an entry that carries reasoning, a plan, or anything secret, before it leaves the process. It has refused entries of ours.</li>
+    <li><b>Verdicts come back and change the code.</b> Six decisions are settled, including two where the reviewer was shown to be wrong and said so.</li>
+    <li><b>The sharpest rule came from there:</b> assert what a person would see, not the mechanism meant to produce it. Both defects that got through had passed tests asserting a mechanism.</li>
+  </ul>
+
+  <h2>What it still cannot do</h2>
+
+  <div class="callout">
+    <h3>It cannot catch two of the five.</h3>
+    <p>
+      A filter that strips a value is invisible to a check that reads imports, and so is a page that
+      returns an error only to a reader without a credential. Claiming five would be the same
+      over-statement the harness was built to refuse.
+    </p>
+  </div>
+
+  <div class="callout">
+    <h3>The write-set contract does not survive contact with the work.</h3>
+    <p>
+      Six times in one night a change landed outside the file set that had been declared for it.
+      Every one was disclosed. Six is not a run of accidents &mdash; it says the boundaries are being
+      guessed rather than derived, and that is a planning fault rather than a discipline problem.
+    </p>
+  </div>
+
+  <div class="callout">
+    <h3>Something moves work out of progress, and nobody knows what.</h3>
+    <p>
+      Three times a task set to in-progress was found parked minutes later, mid-run. Each interruption
+      was cheap enough to absorb, which is exactly why it survived three occurrences without being
+      investigated. It is now a defect with a trace attached rather than a note.
+    </p>
+  </div>
+
+  <footer>
+    A snapshot of the machinery, not of the product. Every number here was measured on the runs it
+    describes rather than estimated. Nothing described above has been committed.
+  </footer>
+</div>
+</body>
+</html>
