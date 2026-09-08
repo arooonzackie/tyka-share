@@ -348,5 +348,282 @@
     describes rather than estimated. Nothing described above has been committed.
   </footer>
 </div>
+
+
+<div class="wrap">
+  <p class="eyebrow">The complete walk &middot; 8 September 2026</p>
+  <h1>What actually happens between typing a sentence and having code somebody can prove</h1>
+  <p class="standfirst">
+    The section above lists nine doors and what each refuses. This one walks a real request through
+    all of them, adds the two gates that sit outside the spine entirely, and names the file every
+    claim was read out of &mdash; so none of it has to be taken on trust.
+  </p>
+
+  <div class="ledger">
+    <div><span class="n">5 sections</span><span class="l">A goal must fill</span></div>
+    <div><span class="n">3 fields</span><span class="l">Every checklist item must carry</span></div>
+    <div><span class="n">11 checks</span><span class="l">In the repo gate chain</span></div>
+    <div><span class="n">5 rules</span><span class="l">Before a page goes public</span></div>
+  </div>
+
+  <h2>The worked example is this page</h2>
+  <p>
+    The sentence &ldquo;show me how the complete harness works and add it to the tyka artifact&rdquo;
+    was typed into a chat box. Everything below is what the machinery did with it, in order.
+  </p>
+
+  <div class="gate">
+    <div class="num">01</div>
+    <div>
+      <h3>The front desk writes it down</h3>
+      <p class="refuses">
+        The sentence becomes a numbered row before anything reads it. It refuses <b>nothing</b> &mdash;
+        that is the point. A door that can reject is a door work can be smuggled past; a door that
+        only records cannot be. The row is the receipt: every later stage points back at it, and a
+        task with no row behind it is refused three stages later.
+      </p>
+      <span class="cost">instant</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">02</div>
+    <div>
+      <h3>Claiming the row is what mints the task</h3>
+      <p class="refuses">
+        Claiming carries two decisions: which <b>lane</b> (a question, a task, a bug, a feature) and
+        which <b>depth</b>. Only the claim creates the task &mdash; boarding one by hand first makes a
+        duplicate that nothing ever joins up. <b>gateSpineEntry</b> in src/loop/flow-gates.js refuses a
+        run with no claimed row and no locked depth, which is what makes &ldquo;nothing runs without
+        permission&rdquo; a property of the system rather than a habit of the agent.
+      </p>
+      <span class="cost">instant</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">03</div>
+    <div>
+      <h3>Alignment &mdash; said back in your words, before any code is thought about</h3>
+      <p class="refuses">
+        A card that says the ask in plain words: what appears on screen, what happens underneath,
+        before and after, the assumptions, what is deliberately out, and how you will know it worked.
+        It is capped in length on purpose &mdash; src/loop/align-gate.js refuses a card that runs long
+        or a section that runs to too many lines, because a summary nobody finishes reading is not a
+        summary. Then the lane <b>parks</b>. It is waiting on you, and it will wait as long as it takes.
+      </p>
+      <span class="cost you">yours</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">04</div>
+    <div>
+      <h3>The goal, and the one thing code can actually judge about it</h3>
+      <p class="refuses">
+        Five sections, listed in src/loop/goalset-flow.js as GOAL_SECTIONS: the goal, the context that
+        cannot be inferred from the repo, the scope with its excluded edge named, the success criteria,
+        and the verification. Five filled sections could be five vague ones, and code cannot tell a
+        good check from a bad one. So it judges the one thing it can: <b>is at least one success
+        criterion something a machine can run and score</b>. isRunnableCheck looks for a command, a
+        real file path, a call, a comparison, an exit status. It knows the phrases that pretend to be
+        checks &mdash; &ldquo;looks right&rdquo;, &ldquo;judged as a user&rdquo; &mdash; and a goal made
+        only of those bounces back with its own complaint attached. Then it parks again.
+      </p>
+      <span class="cost you">yours</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">05</div>
+    <div>
+      <h3>The checklist, and the floor under it</h3>
+      <p class="refuses">
+        Every item must carry three things, enforced by <b>gateChecklistItem</b>: where it may write,
+        the command that proves it, and what a pass means. An item missing any one of them is refused
+        by name. If the command names a file that does not exist, that is refused too &mdash; but only
+        when the answer is a confident no, because a predicate that cannot decide is missing
+        information, not a failure. Then <b>gateProfileChecklist</b> reads the declared write-sets and
+        works out the depth the work actually needs. Declaring a shallow depth for work that writes
+        application source is refused with the offending item named: that is the hole where the flow
+        used to hand itself its own permission at the least strict setting. At full depth the list must
+        also contain an invariant test and an end-to-end test, or it does not pass.
+      </p>
+      <span class="cost">under 5s</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">06</div>
+    <div>
+      <h3>Dispatch &mdash; and the collision map that has to come first</h3>
+      <p class="refuses">
+        Work goes to fresh seats. Before any of them start, their file sets are written down and proved
+        disjoint: <b>two seats may never hold the same file</b>, and a shared surface gets exactly one
+        writer while everything else queues behind it. A seat also declares its blast radius &mdash; the
+        worst thing it could do &mdash; and if that worst case reaches outside its declared files, it
+        does not run in the live tree at all. Both rules are written from incidents, not from theory.
+      </p>
+      <span class="cost slow">3&ndash;12 min</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">07</div>
+    <div>
+      <h3>Verify &mdash; the code runs the command, not the thing that wrote the code</h3>
+      <p class="refuses">
+        Each item is built, then its own verifier is executed by the runner. Green, or a bounded retry
+        that hands the failure back, or that one item escalates alone while the rest carry on. The
+        whole discipline is one sentence: <b>done is what a command proved</b>. A green suite is also
+        not proof on its own &mdash; build, type-check, lint and a bundle search have all passed
+        together on a feature that was completely dead, which is why the tests that count drive the
+        running product rather than calling a function directly.
+      </p>
+      <span class="cost slow">1&ndash;7 min</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">08</div>
+    <div>
+      <h3>Exit &mdash; and it compares against yesterday, not against perfect</h3>
+      <p class="refuses">
+        <b>gateRepoNoWorse</b> refuses a run that leaves the repository worse than it found it. Not
+        red-free: this repository is red today and a block-on-any-red gate would simply never let
+        anything finish, which teaches people to switch gates off. It refuses <b>newly</b> broken, and
+        it counts &mdash; a twenty-fifth failure inside an already-failing step used to look exactly
+        like the twenty-four baselined ones. An absent baseline is treated as missing information and
+        never as &ldquo;nothing is allowed&rdquo;, on the same doctrine.
+      </p>
+      <span class="cost">under 1 min</span>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="num">09</div>
+    <div>
+      <h3>Your tick is the only thing that closes it</h3>
+      <p class="refuses">
+        Finished work goes to <b>check</b>, never to done, and it carries its evidence: the files
+        touched, the commands run, their output. Marking your own work done is the one move the flow
+        does not have. That is also the most expensive step measured anywhere in this system &mdash;
+        far more of the clock goes on waiting for a person than on anything the machine does.
+      </p>
+      <span class="cost you">yours</span>
+    </div>
+  </div>
+
+  <h2>Two gates that are not in the spine at all</h2>
+  <p>
+    The nine above run in order. These two run whenever their moment arrives, and both exist because
+    the spine alone could be walked around.
+  </p>
+
+  <div class="new">
+    <div class="gate">
+      <div class="num">&#9679;</div>
+      <div>
+        <h3>The boarding gate, at the moment of the write</h3>
+        <p class="refuses">
+          A hook sits in front of every file write. Before the bytes land it asks one question, in
+          .claude/hooks/lib/write-kind.mjs: <b>is this product code</b> &mdash; inside the working tree
+          and not ignored by the repository. If it is, and no task on the board is tracking the change,
+          the write is refused in those words. Two deliberate choices: an undecidable answer counts as
+          product, so the doubt costs a board row rather than an unrecorded change; and a path that is
+          not product is allowed before the board is even contacted, so ordinary scratch work pays
+          nothing. The known hole is written into the file itself &mdash; an ignored file that is
+          nonetheless load-bearing passes unboarded.
+        </p>
+        <span class="cost">instant</span>
+      </div>
+    </div>
+
+    <div class="gate">
+      <div class="num">&#9679;</div>
+      <div>
+        <h3>The review exchange, at the moment of sending</h3>
+        <p class="refuses">
+          Reviews are done by a reviewer who has never seen the reasoning. It gets the project brief,
+          the diff, the pasted results and the acceptance criteria &mdash; never the plan, the
+          transcript, or the author&rsquo;s account of what they built, because a reviewer who watched
+          the reasoning rationalises instead of scrutinising. That rule is enforced rather than
+          remembered: a send gate reads every outgoing entry and refuses it by name if it carries a
+          secret, a forbidden path, a transcript, a plan, or a verdict the author awarded themselves.
+          The format is fixed too &mdash; a missing section, or sections in the wrong order, is refused
+          before anything leaves. The protocol is docs/handoffs/review-exchange-protocol.md, and the
+          gate is the code beside it.
+        </p>
+        <span class="cost">instant</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>The rules the seats live under</h2>
+  <ul>
+    <li><b>Fresh, never resumed.</b> One long-lived seat carried five rounds and two dead ends on a single task; a new seat per round is cheaper than the context the old one accumulates. Replying to a returned seat resumes it &mdash; which is how two seats once ended up holding the same four files.</li>
+    <li><b>Read the shared thing once.</b> When several seats would fetch the same source, the session fetches it, filters it, and hands them the file. One board listing measured three megabytes against the hundred kilobytes actually cited.</li>
+    <li><b>A seat verifies its own file, never the whole repository.</b> A repo-wide command run while a sibling is mid-edit returns real output about a state that never existed &mdash; twenty-nine failures across seven untouched files, in one measured case. The session runs the shared gates once, after the last seat is done.</li>
+    <li><b>Nothing is committed unless you say so.</b> Every gate above can be green with the entire night&rsquo;s work still uncommitted, and that is the normal state here.</li>
+  </ul>
+
+  <h2>What the repository gate actually runs</h2>
+  <p>
+    Eleven checks in one chain, and the interesting ones are the two that were added the day code
+    that passed every test turned out to be unreachable.
+  </p>
+  <ul>
+    <li><b>Boundaries and manifests</b> &mdash; no module reaches into another; every module folder is declared where the app looks for it.</li>
+    <li><b>File budget</b> &mdash; a ratchet, per file. It is currently red on two files, and the fix is to split them, never to raise the number; raising it is how a budget stops being one.</li>
+    <li><b>Reachability</b> &mdash; walks out from the running entry points and fails when a module or route exists that the product cannot reach. An import from a test file counts for nothing, which is exactly how the dead code stayed green.</li>
+    <li><b>Build output, id shapes, hygiene, the runner, the styling pipeline, the seat-brief map, the review protocol</b> &mdash; each one a rule that was broken once and is now checked instead of remembered.</li>
+  </ul>
+
+  <h2>Publishing this page is its own gate</h2>
+  <p>
+    The page you are reading went out through a publisher that <b>asserts before it writes</b>. Render
+    the document, run five rules over it, and only then choose a name, write the file, commit, push.
+    The order is the safety property: every throwing path leaves nothing behind.
+  </p>
+  <ul>
+    <li><b>A credential-shaped string</b> &mdash; unrecoverable once public, so it is checked first.</li>
+    <li><b>A link to a host nobody outside can reach</b> &mdash; dead for the reader, or an invitation to leak a session.</li>
+    <li><b>A link carrying a query string</b> &mdash; blunt on purpose, so that the habit of putting a credential in a URL cannot come back on a public surface.</li>
+    <li><b>Script, or an inline handler</b> &mdash; these are documents; one that needs script to show its content is not one.</li>
+    <li><b>An empty shell</b> &mdash; markup that renders to nothing readable, caught directly rather than discovered by a reader.</li>
+  </ul>
+  <p>
+    Nothing goes public by accident either: a page must be deliberately marked before the publisher
+    will touch it, and pressing the control is that act. A refusal names its rule and leaves the mark
+    in place &mdash; you did ask; the content was the problem.
+  </p>
+
+  <h2>Where a run can stop</h2>
+  <ul>
+    <li><b>Parked on you</b>, at the alignment card or the goal card. Nothing times out; the lane holds and can be resumed after a restart, because a card the machine re-renders is not lost work.</li>
+    <li><b>Refused</b> &mdash; by the alignment shape, the goal format, or the depth floor. Each refusal is terminal for that attempt and carries the complaint that caused it.</li>
+    <li><b>Escalated alone</b> &mdash; one checklist item exhausts its retries while the others finish.</li>
+    <li><b>Held at the exit</b> &mdash; every item green, but the repository is newly worse than the baseline.</li>
+  </ul>
+
+  <div class="callout">
+    <h3>The honest limits, since a page that only lists strengths is marketing.</h3>
+    <p>
+      A gate can only judge shape. It can tell a runnable check from prose, but not a good check from a
+      weak one. The write-set boundary is declared by the same process that then works inside it, which
+      is why it has been crossed and disclosed repeatedly. And the most expensive step in the whole
+      flow is not any of the machinery &mdash; it is the wait for a human, which no amount of gating
+      makes faster.
+    </p>
+  </div>
+
+  <footer>
+    Written on 8 September 2026 by walking the running code, not from memory: the stage gates in
+    src/loop/flow-gates.js, the goal shape in src/loop/goalset-flow.js, the lane clock in
+    src/loop/lane-worker.js, the write-time gate in .claude/hooks/lib/write-kind.mjs, the reviewer
+    contract in docs/handoffs/review-exchange-protocol.md, and the publish rules in
+    services/publish. Nothing described here has been committed.
+  </footer>
+</div>
 </body>
 </html>
