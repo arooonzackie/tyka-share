@@ -238,9 +238,9 @@
   <div class="gate">
     <div class="num">05</div>
     <div>
-      <h3>Your approval</h3>
-      <p class="refuses">Refuses to proceed at all. <b>The single most expensive step in the flow</b>, and it is not the flow: 8 minutes 40 on one approval, against every code gate answering in under a minute.</p>
-      <span class="cost you">yours: up to 9 min</span>
+      <h3>Your approval &mdash; <s>removed 8 September 2026</s></h3>
+      <p class="refuses">This door is <b>gone</b>. It was the single most expensive step measured anywhere in the flow &mdash; 8 minutes 40 on one approval, against every code gate answering in under a minute &mdash; and it was never judging something a person was better placed to judge than code was. The gate behind it still runs and still refuses; what it no longer does is ask. <b>Since 8 September there is one park</b> in the whole flow &mdash; the scope card at door 03 &mdash; and nothing else waits on a person.</p>
+      <span class="cost">removed</span>
     </div>
   </div>
 
@@ -362,7 +362,7 @@
   <div class="ledger">
     <div><span class="n">5 sections</span><span class="l">A goal must fill</span></div>
     <div><span class="n">3 fields</span><span class="l">Every checklist item must carry</span></div>
-    <div><span class="n">11 checks</span><span class="l">In the repo gate chain</span></div>
+    <div><span class="n">1 park</span><span class="l">Where the flow waits for you</span></div>
     <div><span class="n">5 rules</span><span class="l">Before a page goes public</span></div>
   </div>
 
@@ -428,9 +428,11 @@
         criterion something a machine can run and score</b>. isRunnableCheck looks for a command, a
         real file path, a call, a comparison, an exit status. It knows the phrases that pretend to be
         checks &mdash; &ldquo;looks right&rdquo;, &ldquo;judged as a user&rdquo; &mdash; and a goal made
-        only of those bounces back with its own complaint attached. Then it parks again.
+        only of those bounces back with its own complaint attached &mdash; and that refusal is
+        <b>delivered, not asked about</b>. Since 8 September this door does not park: a refusal is
+        information the run stops on, never a request for a decision.
       </p>
-      <span class="cost you">yours</span>
+      <span class="cost">instant</span>
     </div>
   </div>
 
@@ -449,7 +451,16 @@
         used to hand itself its own permission at the least strict setting. At full depth the list must
         also contain an invariant test and an end-to-end test, or it does not pass.
       </p>
-      <span class="cost">under 5s</span>
+      <p class="refuses">
+        And since 8 September, <b>every verifier is executed once, here</b>, when the checklist is
+        accepted. A command that cannot start &mdash; a missing binary, a bad directory, a script
+        name that does not exist &mdash; refuses the list and names it. A command that runs and
+        merely FAILS is accepted, because nothing is built yet and a failing assertion is the
+        expected state. This is what replaced the human approval that used to sit beside this door,
+        and it shipped in the same change rather than after it: removing a control before its
+        replacement exists is a gap, not a simplification.
+      </p>
+      <span class="cost">under 5s, plus whatever the verifiers cost to start</span>
     </div>
   </div>
 
