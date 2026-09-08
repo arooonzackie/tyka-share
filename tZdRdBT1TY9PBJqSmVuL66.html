@@ -636,5 +636,456 @@
     services/publish. Nothing described here has been committed.
   </footer>
 </div>
+
+<style>
+  .wire-doc { --sig: #1f6b57; --sig-weak: #e6f1ed; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .wire-doc { --sig: #6fd0ae; --sig-weak: #16241f; }
+  }
+  :root[data-theme='dark'] .wire-doc { --sig: #6fd0ae; --sig-weak: #16241f; }
+  .wire-doc .step {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--card);
+    padding: 1.05rem 1.15rem;
+    margin: 0 0 .85rem;
+  }
+  .wire-doc .step > header {
+    display: flex;
+    align-items: baseline;
+    gap: .7rem;
+    flex-wrap: wrap;
+    margin-bottom: .55rem;
+  }
+  .wire-doc .step .num {
+    font: 600 12px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .wire-doc .step h4 {
+    font: 600 1.02rem/1.3 ui-sans-serif, system-ui, sans-serif;
+    margin: 0;
+  }
+  .wire-doc .where {
+    font: 500 11px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
+    color: var(--sig);
+    background: var(--sig-weak);
+    padding: 1px 7px;
+    border-radius: 3px;
+  }
+  .wire-doc .does { font-size: 15px; margin: 0 0 .7rem; }
+  .wire-doc .lbl {
+    font: 600 10.5px/1.8 ui-monospace, SFMono-Regular, Consolas, monospace;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: .75rem 0 .3rem;
+  }
+  .wire-doc pre {
+    overflow-x: auto;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: .7rem .8rem;
+    margin: 0;
+    font: 12.5px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+  .wire-doc .no {
+    border-left: 3px solid var(--stop);
+    padding: .1rem 0 .1rem .7rem;
+    margin: .8rem 0 0;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .wire-doc .no b { color: var(--ink); font-weight: 600; }
+  .wire-doc code { font-size: .93em; }
+</style>
+
+<div class="wrap wire-doc">
+
+  <p class="eyebrow">Reference</p>
+
+  <h1>Every step, and the shape it speaks in</h1>
+
+  <p class="standfirst">
+    The two documents above say what the harness does and why. This one is the wire: for each step,
+    the door it goes through, the code that owns it, the exact shape going in and coming out, and
+    the sentence it says when it refuses. Every shape here was read off the running code today, not
+    remembered &mdash; the refusal strings are copied verbatim, because a paraphrased refusal is a
+    refusal you cannot grep for.
+  </p>
+
+  <p class="standfirst">
+    One thing to hold onto before the list: <b>code owns the gates, the LLM owns the content.</b>
+    Every stage below is the same two-part machine &mdash; a model drafts, a pure function judges,
+    and the retry is written by the code from the judge's complaint. No stage lets the thing that
+    wrote the answer decide whether the answer was good.
+  </p>
+
+  <div class="step">
+    <header><span class="num">01</span><h4>Intake &mdash; the front desk</h4>
+      <span class="where">POST /api/intake</span></header>
+    <p class="does">
+      Your sentence is written down before anything can act on it. This is the only step that
+      refuses nothing: its whole job is that no work exists which the board never saw.
+    </p>
+    <p class="lbl">Out</p>
+<pre>{ "id": "in-8141", "ask": "&lt;your words, verbatim&gt;",
+  "msgRef": 8141, "state": "open", "version": 1 }</pre>
+    <p class="does" style="margin-top:.7rem">
+      <code>version</code> is the optimistic lock. Every later write names the version it read, so
+      two seats cannot both claim the same row and both believe they won.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><span class="num">02</span><h4>Claim &mdash; the door that mints the task</h4>
+      <span class="where">POST /api/intake/claim</span></header>
+    <p class="does">
+      The fork. You choose a <b>lane</b> (task &middot; bug &middot; feature &middot; question &middot;
+      direct) and a <b>profile</b> (light &middot; bug &middot; full). The claim is what creates the
+      board task &mdash; boarding it by hand first makes a duplicate and the flow reads a gap forever.
+    </p>
+    <p class="lbl">In</p>
+<pre>{ "id": "in-8141", "version": 1,
+  "lane": "task", "profile": "full", "note": "optional" }</pre>
+    <p class="lbl">Out &mdash; a work lane</p>
+<pre>{ "ok": true, "lane": "task", "task": { "id": 1130, ... },
+  "laneQueued": true }</pre>
+    <p class="lbl">Out &mdash; a question lane, which mints nothing</p>
+<pre>{ "ok": true, "lane": "question", "task": null, "laneQueued": false }</pre>
+    <p class="does" style="margin-top:.7rem">
+      Absence is never left to be inferred: a lane that mints no task says <code>task: null</code>
+      and <code>laneQueued: false</code> out loud, so a caller can tell &ldquo;this lane mints
+      nothing&rdquo; from &ldquo;something went wrong.&rdquo; The clock also starts here &mdash; the
+      task is created carrying <code>lanePhases: [{ phase: 'claim', ts }]</code>, and every duration
+      you are ever shown is measured from that stamp.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><span class="num">03</span><h4>Entry gate &mdash; no claim, no run</h4>
+      <span class="where">gateSpineEntry() &middot; src/loop/flow-gates.js</span></header>
+    <p class="does">
+      The choke point that makes &ldquo;nothing runs without permission&rdquo; a property of the
+      system rather than a habit of the agent. It is checked at the door, before any model call, so
+      unauthorised work never costs a token.
+    </p>
+    <p class="lbl">In</p>
+<pre>{ "intakeRef": "in-8141", "profile": "full" }</pre>
+    <p class="no">
+      <b>no claim: missing intakeRef</b> &middot; <b>unknown profile: &lt;x&gt;</b> &mdash; the
+      profile must be one of <code>light</code>, <code>bug</code>, <code>full</code>.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><span class="num">04</span><h4>Align &mdash; your ask, said back to you</h4>
+      <span class="where">gateAlign() &middot; src/loop/align-gate.js</span></header>
+    <p class="does">
+      Before a line of code is thought about, the harness restates what it thinks you asked for and
+      stops. A feature or full claim <b>waits</b> here; a bug gets the same card and keeps walking,
+      because a bug that is misread costs a fix, and a feature that is misread costs a night.
+    </p>
+    <p class="lbl">The card &mdash; exactly ten fields, nothing else</p>
+<pre>{ "lane": "task", "profile": "full",
+  "ask":        "one line, and it must be ONE line",
+  "onScreen":   "what changes where you can see it",
+  "underneath": "what changes where you cannot",
+  "beforeAfter": { "before": "...", "after": "..." },
+  "assumptions": ["...", "..."],
+  "out":   "the nearest thing this does NOT include",
+  "check": "how you will know it worked",
+  "decisions": [{ "question": "...", "recommended": "...",
+                  "alternatives": ["..."] }] }</pre>
+    <p class="lbl">Caps, enforced not suggested</p>
+<pre>whole card   1500 characters of rendered text
+per section  3 lines  (ask: exactly 1)
+arrays       1-3 entries</pre>
+    <p class="no">
+      <b>unknown field &ldquo;x&rdquo; &mdash; the card has exactly these ten fields: &hellip;</b>
+      The complaint names all ten, which is what turns a refusal into an instruction. A field the
+      renderer would never draw used to be charged against the ceiling anyway, so a card whose
+      visible text was 200 characters could be refused for something invisible. Two attempts, then
+      the state becomes <code>align-refused</code>.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><span class="num">05</span><h4>Goal &mdash; five sections, one runnable check</h4>
+      <span class="where">gateGoalFormat() &middot; src/loop/goalset-flow.js</span></header>
+    <p class="does">
+      The goal states the outcome, never the implementation. The gate judges only two things, and
+      the second is the one with teeth.
+    </p>
+    <p class="lbl">Required</p>
+<pre>goal · contextYouCantInfer · scope · successCriteria · verification</pre>
+    <p class="lbl">And at least one criterion a machine can score</p>
+<pre>{ "successCriteria": [
+    { "runnable": "node --test test/worktree.test.js" },
+    { "text": "the card reads correctly at 390px" } ] }</pre>
+    <p class="does" style="margin-top:.7rem">
+      If a criterion declares a runnable column at all (<code>runnable</code>, <code>verifier</code>,
+      <code>command</code>, <code>check</code>, <code>cmd</code>) it is judged on that column
+      <i>alone</i> &mdash; prose sitting beside an empty one does not rescue it. That is deliberate:
+      blending an eye-check into the runnable column is the agent grading its own homework in the
+      one place the design forbids it.
+    </p>
+    <p class="no">
+      <b>successCriteria must be a non-empty array</b> &middot; and a goal whose criteria are all
+      vibes &mdash; <code>looks right</code>, <code>works well</code>, <code>judged as a user</code>,
+      <code>+ live</code> &mdash; bounces back carrying the complaint. Three attempts, then
+      <code>goal-refused</code>.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><span class="num">06</span><h4>Checklist &mdash; write-set, verifier, acceptance</h4>
+      <span class="where">POST /api/lane/complete &middot; gateChecklistItem()</span></header>
+    <p class="does">
+      The goal is decomposed into items, and every item carries the three things that make
+      &ldquo;done&rdquo; provable by something other than the agent's word.
+    </p>
+    <p class="lbl">One item</p>
+<pre>{ "id": "the-round-trip-invariant",
+  "writeSet": ["claude-companion/test/worktree.invariant.test.js"],
+  "verifier": "cd claude-companion &amp;&amp; node --test test/worktree.invariant.test.js",
+  "acceptance": "Exit 0. Work done in a worktree ARRIVES on the branch,
+                 or the branch is untouched and the reason is named.
+                 Never a third outcome.",
+  "tags": ["test:invariant"] }</pre>
+    <p class="lbl">The envelope &mdash; and the part that trips everyone</p>
+<pre>POST /api/lane/complete
+{ "taskId": "1130", "kind": "checklist",
+  "requestId": "checklist-10",     &lt;- REQUIRED
+  "draft": [ ...items... ] }       &lt;- a BARE ARRAY, not {items:[...]}</pre>
+    <p class="no">
+      <b>name the requestId of the brief you are answering (checklist-10)</b> &middot;
+      <b>stale draft for X; outstanding is Y</b>. The id is not guessable &mdash; the counter is
+      global and already in the hundreds &mdash; so the working move is to post without one and read
+      the id the daemon <i>names</i> in its own refusal, then resend. It exists so a planner's late
+      reply to a superseded brief cannot be accepted onto whatever brief happens to be open now.
+    </p>
+    <p class="no">
+      <b>item [x] verifier cannot run: &hellip;</b> &mdash; a verifier that <i>fails</i> is fine
+      (nothing is built yet); one that cannot <i>start</i> is not a verifier at all.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><span class="num">07</span><h4>Profile floor &mdash; the depth you cannot talk your way under</h4>
+      <span class="where">gateProfileChecklist() &middot; src/loop/flow-gates.js</span></header>
+    <p class="does">
+      The hole this closes is subtle and was real: the gate enforced whatever profile the claim
+      declared, and nothing checked that the declaration was honest &mdash; so the rule
+      &ldquo;nothing runs without permission&rdquo; quietly wrote its own permission, at the least
+      strict setting. Now the floor is <b>inferred from the write-sets</b>. Touch application
+      source, and you are doing full-profile work whatever you called it.
+    </p>
+    <p class="lbl">What each profile owes</p>
+<pre>bug   first item must carry tag "repro" — the failing test leads
+full  one item tagged "test:invariant" AND one tagged "test:e2e"
+light no floor — and no write-set that touches product source</pre>
+    <p class="no">
+      <b>profile &ldquo;light&rdquo; is below the inferred minimum &ldquo;full&rdquo; &mdash; item
+      [x] writes application source (&lt;path&gt;)</b>, and the refusal tells you which declaration
+      to make instead. Refused checklists land the task at <code>profile-refused</code>.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><span class="num">08</span><h4>Create &mdash; the two writes that join</h4>
+      <span class="where">laneState: 'created'</span></header>
+    <p class="does">
+      The work item is raised and the task points at it; the item points back. The state machine the
+      whole flow walks is a fixed vocabulary, and an unknown value is refused at the write rather
+      than stored and puzzled over later:
+    </p>
+    <p class="lbl">Every state a task can be in</p>
+<pre>queued → aligning → awaiting-align → aligned → goal
+      → checklist → awaiting-approval → created
+
+direct            the user took this out of the flow by hand
+align-refused     the align gate bounced the card past its retry cap
+goal-refused      the format gate bounced the goal
+profile-refused   the checklist was below the floor for its claim</pre>
+    <p class="does" style="margin-top:.7rem">
+      <code>lanePhases</code> is append-only. A stage never rewrites an earlier stamp, so the clock
+      cannot be made to look better after the fact.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><span class="num">09</span><h4>Dispatch &mdash; the collision map comes first</h4>
+      <span class="where">.claude/templates/seat-brief.md</span></header>
+    <p class="does">
+      Before any seat is spawned, each seat's file set is written down and proven disjoint. A shared
+      surface gets exactly one writer and everything else serialises behind it. If you cannot name
+      each seat's paths, you are not ready to fan out &mdash; and the honest default verdict is
+      <b>no spawn at all</b>, because only about 12.6% of this repo's commits touch a single module.
+    </p>
+    <p class="lbl">The field that makes a bad brief unwritable</p>
+<pre>Blast radius: &lt;worst-case irreversible effect&gt;
+Contained by: worktree | throwaway clone | read-only | reversible-by-git
+Restore from: &lt;snapshot ref&gt;</pre>
+    <p class="does" style="margin-top:.7rem">
+      Disjoint file sets prove nothing about a seat that can write <i>outside</i> its set. One
+      tree-level seat voids the map for every other seat in the wave &mdash; that is not
+      hypothetical: an interrupted experiment once reset ~193 uncommitted files and destroyed three
+      innocent seats' work, and every other field on the brief was answerable and answered.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><span class="num">10</span><h4>Verify &mdash; code runs the command, not the thing that wrote it</h4>
+      <span class="where">runVerifierOnce() &middot; src/loop/lanes/task.js</span></header>
+    <p class="does">
+      The verifier is executed by the harness, and the distinction it draws is the whole point: a
+      test that <b>fails</b> is information, a command that <b>cannot start</b> is a broken promise.
+    </p>
+    <p class="lbl">Cannot-start, by exit code and by message</p>
+<pre>exit 127 · exit 9009
+"Missing script" · "not recognized" · "command not found"
+"no such file"   · "cannot find module"</pre>
+    <p class="lbl">And the one that reads backwards until you see it</p>
+<pre>if (r.error &amp;&amp; (r.error.code === 'ETIMEDOUT' || r.signal))
+  return { ran: true };</pre>
+    <p class="does" style="margin-top:.7rem">
+      A <b>timeout means it RAN</b>. This was a real bug caught before it shipped: treating
+      ETIMEDOUT as &ldquo;cannot run&rdquo; would have refused every Playwright verifier in the
+      repo, because a browser suite is exactly the thing that outlives a short timeout.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><span class="num">11</span><h4>Exit &mdash; measured against yesterday, not against perfect</h4>
+      <span class="where">gateRepoNoWorse() &middot; src/loop/flow-gates.js</span></header>
+    <p class="does">
+      A run may not finish clean on top of new breakage. The bar is deliberately not
+      &ldquo;everything green&rdquo; &mdash; this repo is red today and would never finish. It is
+      <b>no worse than the recorded baseline</b>.
+    </p>
+    <p class="lbl">Two ways to be worse</p>
+<pre>a step failing that the baseline does not accept
+a step failing MORE than the baseline records —
+  a higher count, OR a count that disappeared</pre>
+    <p class="does" style="margin-top:.7rem">
+      The vanished count is the subtle half. &ldquo;Unknown is never worse&rdquo; is right when
+      neither side knows &mdash; but a baseline holding a number is proof that a number was
+      obtainable, so losing it means the runner died before it could print one.
+    </p>
+    <p class="no">
+      <b>repo gate got WORSE than scripts/init-baseline.json &mdash; newly failing: &lt;cmds&gt;</b>.
+      A missing verdict or an unusable baseline is a <i>warning</i>, never a block: a gate that
+      fails everyone's work over an absent file only teaches people to reach for
+      <code>--no-verify</code>.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><span class="num">12</span><h4>Your tick &mdash; the only thing that closes it</h4></header>
+    <p class="does">
+      Nothing above can move a task to done. The harness can only reach <code>check</code>, carrying
+      its evidence; the last step is yours, and no seat may move a board row on your behalf.
+    </p>
+  </div>
+
+  <h2>Three gates that are not in the spine at all</h2>
+
+  <div class="step">
+    <header><h4>The boarding gate &mdash; at the moment of the write</h4>
+      <span class="where">.claude/hooks/lib/write-kind.mjs</span></header>
+    <p class="does">
+      Not a stage but an interception: it fires on the tool call itself, so an agent that decides to
+      skip the flow is stopped by the same machinery whether it meant to or not. Rules in files are
+      promises; this is code.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><h4>Publish &mdash; render, then assert, then write</h4>
+      <span class="where">services/publish/src/assert.ts</span></header>
+    <p class="does">
+      Five rules, and <b>the ordering is the safety property</b>: everything is checked before
+      anything is written, so a refused page leaves nothing behind to find.
+    </p>
+    <p class="lbl">The five, in the order they are checked</p>
+<pre>credential     an API key or token in the bytes
+gated-host     the loopback names, the v6 loopback, the gated app host
+query-string   a URL carrying parameters
+script-tag     executable markup
+empty-content  nothing worth serving</pre>
+    <p class="does" style="margin-top:.7rem">
+      The four gated hosts are described rather than spelled, and that is not squeamishness &mdash;
+      the rule matches <i>any</i> occurrence anywhere in the bytes, so a page that names them is a
+      page that cannot be published. This one tripped it on the first attempt and was rewritten
+      rather than smuggled past, which is the only honest way to treat a gate you also happen to own.
+    </p>
+    <p class="no">
+      <b>PublishRefused[gated-host]</b> &mdash; every rule names itself in the message, because
+      &ldquo;publish refused&rdquo; with no reason is a stall. <code>PublishRefused</code> is a 400
+      (the content is wrong, and you must change it); <code>PublishBlocked</code> is a 409 (the flag
+      or the source, not the content). This page went through it.
+    </p>
+  </div>
+
+  <div class="step">
+    <header><h4>The snapshot &mdash; new today</h4>
+      <span class="where">src/git.js &middot; src/secretScan.js &middot; src/worktree.js</span></header>
+    <p class="does">
+      Every 30 minutes the daemon writes the working tree to
+      <code>refs/vfp-snapshots/&lt;branch&gt;</code> &mdash; a real commit, in a throwaway index, that
+      never moves HEAD and never runs a hook. Two things changed today, and both because a worktree
+      is now cut from these commits rather than from the branch tip.
+    </p>
+    <p class="lbl">It says what it holds</p>
+<pre>before   snapshot 2026-09-08 13:11:22
+after    snapshot · 3 files · claude-companion/src, test, docs/plans</pre>
+    <p class="lbl">And it is scanned before the ref moves</p>
+<pre>{ "ok": false, "committed": false, "refused": "secret",
+  "error": "snapshot refused: a credential-shaped string would be
+            stored (path). Nothing was written to &lt;ref&gt;." }</pre>
+    <p class="does" style="margin-top:.7rem">
+      A real commit passes through gitleaks first, on the argument that a leaked key cannot be
+      un-leaked &mdash; deleting the line later fixes nothing, because history keeps it and the
+      actual remedy is cancelling the key. The snapshot was the one path in this repo that wrote a
+      tree with <i>no</i> scan, which was tolerable while it was only a safety net and stopped being
+      tolerable the moment other work started branching from it. It still <b>fails open</b> on a
+      missing scanner, and says the scan was skipped &mdash; the same posture the commit hook takes,
+      for the same reason.
+    </p>
+    <p class="lbl">And the merge back, which is the actual safety property</p>
+<pre>{ "ok": false, "refused": "conflict",
+  "conflicts": ["a.txt"], "unchanged": true,
+  "error": "merge refused: 1 conflicting file — a.txt.
+            main is unchanged." }</pre>
+    <p class="does" style="margin-top:.7rem">
+      The parallel bargain is <i>guess disjoint, verify at the merge, fall back to serial</i>
+      &mdash; so a merge that cannot fail <b>cleanly</b> is not a verification, it is a coin toss
+      with a tidy log. On conflict the merge is aborted, the paths are named, and the branch is left
+      byte-for-byte where it was. Never a third outcome.
+    </p>
+  </div>
+
+  <h2>What this reference does not claim</h2>
+
+  <p class="standfirst">
+    That the gates are complete. Two of the five failure modes the design names are still caught by
+    nobody; the write-set contract is declared at checklist time and not re-checked against the diff
+    that actually lands; and the dispatch router that would decide <i>when</i> a worktree is worth
+    cutting does not exist &mdash; the primitives above are deliberately built ahead of it, because
+    that decision needs a measurement this repo has not taken. A page that only lists strengths is
+    marketing.
+  </p>
+
+  <footer>
+    Read off the running code on 2026-09-08: the routes in src/server.js and src/routes/lane.js, the
+    gates in src/loop/flow-gates.js, src/loop/align-gate.js and src/loop/goalset-flow.js, the stages
+    in src/loop/lanes/task.js, the state vocabulary in src/todos.js, the publish rules in
+    services/publish/src/assert.ts, and the snapshot and worktree primitives in src/git.js,
+    src/secretScan.js and src/worktree.js. Refusal strings are verbatim. None of it is committed.
+  </footer>
+
+</div>
 </body>
 </html>
