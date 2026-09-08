@@ -726,15 +726,53 @@
     <header><span class="num">01</span><h4>Intake &mdash; the front desk</h4>
       <span class="where">POST /api/intake</span></header>
     <p class="does">
-      Your sentence is written down before anything can act on it. This is the only step that
-      refuses nothing: its whole job is that no work exists which the board never saw.
+      Your sentence is written down before anything can act on it: its whole job is that no work
+      exists which the board never saw.
     </p>
     <p class="lbl">Out</p>
-<pre>{ "id": "in-8141", "ask": "&lt;your words, verbatim&gt;",
-  "msgRef": 8141, "state": "open", "version": 1 }</pre>
+<pre>{ "id": "in-291", "ask": "&lt;your words, trimmed&gt;",
+  "msgRef": 8151, "status": "open", "version": 1,
+  "laneHint": null, "refines": null,
+  "claim": null, "taskRef": null, "closedRef": null }</pre>
     <p class="does" style="margin-top:.7rem">
       <code>version</code> is the optimistic lock. Every later write names the version it read, so
       two seats cannot both claim the same row and both believe they won.
+    </p>
+    <p class="lbl">Four things this block got wrong until the review caught them</p>
+    <p class="does">
+      An earlier draft of this page printed <code>"state": "open"</code> and an <code>id</code>
+      and <code>msgRef</code> carrying the same number, and called the door one that
+      <i>refuses nothing</i>. A reviewer walking door 01 asked for each of those to be read off
+      the code rather than inferred, and three of them were wrong:
+    </p>
+<pre>the field is `status`, not `state`  — open · claimed · asked · closed
+id and msgRef NEVER match — `in-291` is this store's own counter,
+  `msgRef` is the chat message (8151). Both are kept; they trace
+  different things.
+it refuses THREE things — unknown source, empty ask, unknown laneHint.
+  Not "nothing": it refuses nothing about the CONTENT of an ask.
+`ask` is trimmed, and capped at 4000 chars with `askLength` keeping
+  the true length. So "verbatim" was an overstatement too.</pre>
+    <p class="does" style="margin-top:.7rem">
+      The status vocabulary is closed, but it is held closed <i>by construction</i> — only these
+      methods write a status, and there is no general update door — rather than by a write-time
+      refusal the way <code>laneState</code> is in <code>src/todos.js</code>. Same outcome,
+      different mechanism, and this page previously implied the stricter one.
+    </p>
+    <p class="lbl">And one field that is new</p>
+    <p class="does">
+      <code>refines</code> lets a row say it corrects an earlier row. Without it, every sentence
+      was an independent numbered row with no relationship to any other — so a correction to
+      work already in flight could only become a <b>new task</b>. That gets blamed on the claim
+      door, but claim cannot make a better decision than its input allows, and its input could
+      not point at anything.
+    </p>
+    <p class="no">
+      <b>no such row to refine: in-9999</b> — the one thing this door may reject about the field,
+      and it is referential rather than a judgement. It is also <b>never inferred</b>: not from
+      timing, not from similarity, not from an open row sitting there looking related. An
+      inferred link is a classification, and classification at intake is exactly what this door
+      is built not to do.
     </p>
   </div>
 
